@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 use bevy_rapier3d::{
-    dynamics::RigidBody,
+    dynamics::{RigidBody, Damping},
     geometry::{Collider, ColliderMassProperties},
     plugin::{NoUserData, RapierConfiguration, RapierPhysicsPlugin, TimestepMode},
-    render::RapierDebugRenderPlugin
+    // render::RapierDebugRenderPlugin
 };
-
 mod camera;
 
 pub fn main() {
@@ -17,10 +16,10 @@ pub fn main() {
         })
         .insert_resource(RapierConfiguration {
             timestep_mode: TimestepMode::Fixed { dt: 0.05, substeps: 20 },
-            // Useful settings for debugging
-            // physics_pipeline_active: false,
-            // query_pipeline_active: false,
-            // gravity: Vec3::ZERO,
+            physics_pipeline_active: true,
+            query_pipeline_active: true,
+            gravity: Vec3::new(0.0,-9.81,0.0),
+            // gravity:Vec3::ZERO,
             ..default()
         })
         .add_plugins(DefaultPlugins)
@@ -34,11 +33,11 @@ pub fn main() {
         .run();
 }
 
-fn render_origin(mut gizmos: Gizmos) {
-    gizmos.line(Vec3::ZERO, Vec3::X, Color::RED);
-    gizmos.line(Vec3::ZERO, Vec3::Y, Color::GREEN);
-    gizmos.line(Vec3::ZERO, Vec3::Z, Color::BLUE);
-}
+// fn render_origin(mut gizmos: Gizmos) {
+//     gizmos.line(Vec3::ZERO, Vec3::X, Color::RED);
+//     gizmos.line(Vec3::ZERO, Vec3::Y, Color::GREEN);
+//     gizmos.line(Vec3::ZERO, Vec3::Z, Color::BLUE);
+// }
 
 fn setup(
     mut commands: Commands,
@@ -82,10 +81,11 @@ fn setup(
     commands
         .spawn((Collider::cuboid(cube_size * 0.5, cube_size * 0.5, cube_size * 0.5), RigidBody::Dynamic))
         .insert(ColliderMassProperties::Mass(1.0))
+        .insert(Damping { linear_damping: 0.1, angular_damping: 0.1 })
         .insert(PbrBundle {
             mesh: meshes.add(Mesh::from(Cuboid::new(cube_size, cube_size, cube_size))),
             material: materials.add(cube_color),
-            transform: Transform::from_xyz(0.5, 0.5, 0.0),
+            transform: Transform::from_xyz(0.5, 100.0, 0.0),
             ..default()
         });
 
@@ -93,10 +93,11 @@ fn setup(
     commands
         .spawn((Collider::cuboid(cube_size * 0.5, cube_size * 0.5, cube_size * 0.5), RigidBody::Dynamic))
         .insert(ColliderMassProperties::Mass(10.0))
+        .insert(Damping { linear_damping: 0.02, angular_damping: 0.02 })
         .insert(PbrBundle {
             mesh: meshes.add(Mesh::from(Cuboid::new(cube_size, cube_size, cube_size))),
             material: materials.add(cube_color),
-            transform: Transform::from_xyz(-0.5, 0.5, 0.0),
+            transform: Transform::from_xyz(-0.5, 100.0, 0.0),
             ..default()
         });
 
